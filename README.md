@@ -67,6 +67,7 @@ After that, unpacked each partitions using the command below.
 ```
 
 As a result you can get files like below.
+
 <img width="657" alt="image" src="https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/ed803c34-a9a7-45f3-8d05-aa53aa67af9b">
 <img width="659" alt="image" src="https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/8b8f755e-6247-4275-86b4-745f434f3b5d">
 
