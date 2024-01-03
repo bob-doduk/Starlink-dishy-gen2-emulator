@@ -164,8 +164,23 @@ For the emulator to work, you need to get a flattened device tree file for your 
 
 Using the dumpimage tool above, you can get the device tree file. Ours was image number 18.
 ![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/97f5d2dc-1aa7-412b-aed9-a98b95707966)
-After getting the image, you will get a dtb file which can be decompiled using ``dtc`` tool.(you can see dtc tool usage information at [dtc documentation](https://siliconbladeconsultants.com/2022/05/26/decompiling-the-linux-device-tree-dtb/))
+After getting the image, you will get a dtb file and  it can be decompiled using ``dtc`` tool.(you can see dtc tool usage information at [dtc documentation](https://siliconbladeconsultants.com/2022/05/26/decompiling-the-linux-device-tree-dtb/))
 
+The way we made our own dtb file is like this.
+1. Get a clean dtb file of qemu-system-aarch64
+   -> this can be done by following [official documentation](https://u-boot.readthedocs.io/en/stable/develop/devicetree/dt_qemu.html)
+   ``qemu-system-aarch64 -machine virt -machine dumpdtb=qemu.dtb``
 
+2. merge it with the dtb extracted
+   -> ``cat  <(dtc -I dtb qemu.dtb) <(dtc -I dtb rev3_proto2.dtb | grep -v /dts-v1/) | dtc - -o merged.dtb``
 
+After that, we did some trials to get the dtb working. You will have to add or erase parts to get it working. File uploaded is the one that fitted our environment.(I erased the dm-verity key part so you will have to find it in your own dts file)
 
+### 3-3. emulate.sh file modification
+First of all, you will have to change the ``sx-serialnum`` at ``bootargs``. You can find your own num at the ``nt-fw.bin``. This was the file extracted at ``fip_a.0`` using fiptool above.
+
+Second, you will have to change the ``-dtb`` option file to the one you made.
+
+Lastly, erase the ``-virtfs local,path=./disks/dish-cfg,mount_tag=dishcfg,security_model=mapped-xattr \`` option because we don't need it.
+
+And that is it! you can now run your emulator to work. The log in id and password is ``root`` and ``falcon``.
