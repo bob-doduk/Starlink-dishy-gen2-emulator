@@ -174,7 +174,7 @@ The way we made our own dtb file is like this.
 2. merge it with the dtb extracted
    -> ``cat  <(dtc -I dtb qemu.dtb) <(dtc -I dtb rev3_proto2.dtb | grep -v /dts-v1/) | dtc - -o merged.dtb``
 
-After that, we did some trials to get the dtb working. You will have to add or erase parts to get it working. File uploaded is the one that fitted our environment.(I erased the dm-verity key part so you will have to find it in your own dts file)
+After that, we did some trials to get the dtb working. You will have to add or erase parts to get it working. File uploaded is the one that fitted our environment.(I erased the dm-verity key part so you will have to find it in your own dts file. But it turns out that without the security parts, it appears to be working well)
 
 ### 3-3. emulate.sh file modification
 First of all, you will have to change the ``sx-serialnum`` at ``bootargs``. You can find your own num at the ``nt-fw.bin``. This was the file extracted at ``fip_a.0`` using fiptool above.
