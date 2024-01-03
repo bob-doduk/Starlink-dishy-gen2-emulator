@@ -3,20 +3,21 @@
 This repository belongs to ``Best of the Best 12th 익스 딸끄니까⭐️`` team.
 We've tried to make an emulator for starlink dishy gen2. Basically we've followed up on [quarks lab starlink tools](https://github.com/quarkslab/starlink-tools) and changed some of the codes to adjust to our environment!
 
-## 0. Settings
+## 1. Settings
 
 - OS : Ubuntu 22.04(Vmware fusion)
 - Emulated device : rev3_proto2
 - Method of getting the firmware : did a eMMC chip-off from the antenna, reballed it and dumped the firmware using BGA socket
 
-## 1. Extracting parts
+## 2. Extracting parts
 Once you have dumped the firmware, it will look like this.
 ![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/b018eb5d-5794-460a-a601-a0caf96b795a)
 
 using [quarks lab parts-extractor](https://github.com/quarkslab/starlink-tools/tree/main/parts-extractor) you will be able to get different parts like picture below
-![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/76e9a487-64c9-4a7d-ab82-85a36d0c9a3a)
+<img width="789" alt="image" src="https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/dbe849d7-cac8-40c9-8c74-aa0d59b1499c">
 
-### 1-1. ``bootfip`` & ``fip`` partition
+
+### 2-1. ``bootfip`` & ``fip`` partition
 First of all, you have to build ``fiptool`` to analyze these two partitions.
 
 #### 1. building fiptool
@@ -53,9 +54,6 @@ export LD_LIBRARY_PATH=/usr/local/lib64
 make OPENSSL_DIR=/usr/local/src/openssl-3.0.11
 ```
 
-the result page will look like this.
-![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/46b7fa6e-834f-4ea7-b9ab-90ead171496c)
-
 #### 2. using fiptool
 As for me, I've made a ``source`` directory under the fiptool directory and copied ``bootfip0`` & ``fip_a.0`` partitions to the source directory.
 
@@ -69,12 +67,13 @@ After that, unpacked each partitions using the command below.
 ```
 
 As a result you can get files like below.
-![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/8485f26c-7784-40e9-b64d-f65a2a8244cf)
-![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/a6bceac9-07f0-432b-af19-8e58e41dfe80)
+<img width="657" alt="image" src="https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/ed803c34-a9a7-45f3-8d05-aa53aa67af9b">
+<img width="659" alt="image" src="https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/8b8f755e-6247-4275-86b4-745f434f3b5d">
 
-### 1-2. ``linux`` partition
+
+### 2-2. ``linux`` partition
 the ``linux partition`` is protected with a special method called ``SXECC``(probably spacex error correcting code). So in order to use binwalk to get the files inside, we needed to do some works to get it working
-![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/cda94538-51ab-4b6d-87af-b48c689dde9a)
+<img width="1004" alt="image" src="https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/07935903-3f0d-4dfe-aabe-269c7f44e816">
 
 We've used codes from [quarks lab un-ecc code](https://github.com/quarkslab/starlink-tools/tree/main/unecc)
 ```
@@ -142,4 +141,30 @@ binwalk -Mre sx_a
 ```
 
 The ``_1080.extracted`` folder is the ``runtime`` folder that we want. So we changed its name to ``runtime`` and moved it to ``rootfs/sx/local/runtime`` folder and finally got the whole rootfs filesystem in our hand.
+
+## 3. Emulation
+Basically all the codes and files are the same from [quarks lab emulator](https://github.com/quarkslab/starlink-tools/tree/main/emulator). So clone it from the repository first. Below are specific instructions on using the codes and different codes we used to do the emulation of the second generation dishy.
+
+### 3-1. Firmware integration
+#### 1. original.img
+We need the whole file we've dumped before(userarea.bin file). Copy that file and name it ``original.img``
+
+#### 2. rootfs folder
+Copy the folder we made above and move it to this directory
+
+In the ``rootfs/usr/bin/is_production_hardware`` file, we need to change some parts for our emulator to show log in page. Like the picture below, we've changed parts that said ``1`` to ``0`` for it to work.
+![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/9ef47f2c-c944-41a8-8e49-ee84861edd8f)
+
+#### 3. linux kernel
+What we need is linux kernel 5.15.55 version. You can get the source code from [linux kernel 5.15.55](https://www.linuxcompatible.org/story/linux-kernel-51555-released/). After that, using the ``build-kernel.sh`` file, you can build the kernel needed for the emulator.
+
+### 3-2. Flattend Device Tree modification
+For the emulator to work, you need to get a flattened device tree file for your version.(In our case, the hardware version was ``rev3_proto2``)
+
+Using the dumpimage tool above, you can get the device tree file. Ours was image number 18.
+![image](https://github.com/bob-doduk/Starlink-Analysis-gen2/assets/102951397/97f5d2dc-1aa7-412b-aed9-a98b95707966)
+After getting the image, you will get a dtb file which can be decompiled using ``dtc`` tool.(you can see dtc tool usage information at [dtc documentation](https://siliconbladeconsultants.com/2022/05/26/decompiling-the-linux-device-tree-dtb/))
+
+
+
 
