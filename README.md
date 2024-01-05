@@ -174,7 +174,11 @@ The way we made our own dtb file is like this.
 2. merge it with the dtb extracted
    -> ``cat  <(dtc -I dtb qemu.dtb) <(dtc -I dtb rev3_proto2.dtb | grep -v /dts-v1/) | dtc - -o merged.dtb``
 
-After that, we did some trials to get the dtb working. You will have to add or erase parts to get it working. File uploaded is the one that fitted our environment.(I erased the dm-verity key part so you will have to find it in your own dts file. But it turns out that without the security parts, it appears to be working well)
+After that, we did some trials to get the dtb working. You will have to add or erase parts to get it working. There are 2 files uploaded.
+``custom.dts`` : This dts automatically starts programs like ``user_terminal_frontend``, ``emc_web_socket_server`` and so on just like the real antenna. But because of hardware peripherals are not equiped with the qemu, they are not working properly. So there are a lot of errors going on but still works inside the emulator. We tried to include all the parts from the original dts and this was the best we could do. However, because of errors going on, we used the ``final.dts`` for debugging and for our later work.
+``final.dts`` : This one is a more light version of dts. It includes only the necessary parts for running the emulator.
+
+Inside the ``custom.dts`` file, I've excluded parts that could contain security numbers. So you might have to fill it in with yours😊
 
 ### 3-3. emulate.sh file modification
 First of all, you will have to change the ``sx-serialnum`` at ``bootargs``. You can find your own num at the ``nt-fw.bin``. This was the file extracted at ``fip_a.0`` using fiptool above.
